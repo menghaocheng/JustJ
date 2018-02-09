@@ -8,8 +8,12 @@ interface AidlJustjService {
     //Ibinder getMagCardReader();
     String hello(String inStr);
 
-    IBinder getPinPad(int devid);
-
     IBinder getSpSysCtrl();
+
+    IBinder getIccReader();
+
+    IBinder getPiccReader();
+
+    IBinder getPinPad(int devid);
 
 }
