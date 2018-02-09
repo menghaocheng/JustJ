@@ -24,6 +24,8 @@ interface AidlJustjService {
 
     IBinder getDownload();
 
+    IBinder getGuomiReader();
+
 
 
 }

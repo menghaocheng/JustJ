@@ -4,6 +4,7 @@ import com.just.api.Device;
 import com.just.api.PosDevice;
 import com.just.api.UtilFun;
 import com.justtide.aidl.AidlJustjService;
+import com.justtide.aidl.IGuomiReader;
 import com.justtide.aidl.IIccReader;
 import com.justtide.aidl.IMagcardReader;
 import com.justtide.aidl.IPedReader;
@@ -15,6 +16,7 @@ import com.justtide.aidl.ISpSysCtrl;
 
 
 import com.justtide.aidl.IThermalPrinter;
+import com.justtide.justtide.GuomiReader;
 import com.justtide.justtide.IccReader;
 import com.justtide.justtide.MagcardReader;
 import com.justtide.justtide.PiccReader;
@@ -51,6 +53,7 @@ public class JustjService extends Service {
     ThermalPrinter mThermalPrinter;
     PedReader mPedReader;
     SpDownloader mSpDownloader;
+    GuomiReader mGuomiReader;
 
     @Override
     public void onCreate() {
@@ -67,6 +70,7 @@ public class JustjService extends Service {
         mThermalPrinter = ThermalPrinter.getInstance();
         mPedReader = PedReader.getInstance(null);
         mSpDownloader = SpDownloader.getInstance();
+        mGuomiReader = GuomiReader.getInstance();
 
     }
 
@@ -143,7 +147,10 @@ public class JustjService extends Service {
             return mISpDownloader;
         }
 
-
+        @Override
+        public IBinder getGuomiReader() throws RemoteException {
+            return mIGuomiReader;
+        }
     };
 
     private final ISpSysCtrl.Stub mISpSysCtrl = new ISpSysCtrl.Stub(){
@@ -613,4 +620,21 @@ public class JustjService extends Service {
 
     };
 
+    private final IGuomiReader.Stub mIGuomiReader = new IGuomiReader.Stub(){
+        @Override
+        public String getVersion() throws RemoteException {
+            return mGuomiReader.getVersion();
+        }
+
+        @Override
+        public int open() throws RemoteException {
+            return mGuomiReader.open();
+        }
+
+        @Override
+        public int close() throws RemoteException {
+            return mGuomiReader.close();
+        }
+
+    };
 }
