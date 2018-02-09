@@ -14,6 +14,7 @@ import com.justtide.aidl.ISpSysCtrl;
 //import com.justtide.aidl.AidlJustjService;
 
 
+import com.justtide.aidl.IThermalPrinter;
 import com.justtide.justtide.IccReader;
 import com.justtide.justtide.MagcardReader;
 import com.justtide.justtide.PiccReader;
@@ -21,6 +22,7 @@ import com.justtide.justtide.PsamReader;
 import com.justtide.justtide.SpDownloader;
 import com.justtide.justtide.SpSysCtrl;
 import com.justtide.justtide.PedReader;
+import com.justtide.justtide.ThermalPrinter;
 
 import android.app.Service;
 import android.content.Context;
@@ -46,6 +48,7 @@ public class JustjService extends Service {
     PsamReader mPsamReader;
     PiccReader mPiccReader;
     MagcardReader mMagcardReader;
+    ThermalPrinter mThermalPrinter;
     PedReader mPedReader;
     SpDownloader mSpDownloader;
 
@@ -61,6 +64,7 @@ public class JustjService extends Service {
         mPsamReader = PsamReader.getInstance();
         mPiccReader = PiccReader.getInstance();
         mMagcardReader = MagcardReader.getInstance();
+        mThermalPrinter = ThermalPrinter.getInstance();
         mPedReader = PedReader.getInstance(null);
         mSpDownloader = SpDownloader.getInstance();
 
@@ -115,8 +119,18 @@ public class JustjService extends Service {
         }
 
         @Override
+        public IBinder getMagcardReader() throws RemoteException {
+            return mIMagcardReader;
+        }
+
+        @Override
         public IBinder getPiccReader() throws RemoteException {
             return mIPiccReader;
+        }
+
+        @Override
+        public IBinder getThermalPrinter() throws RemoteException {
+            return mIThermalPrinter;
         }
 
         @Override
@@ -128,9 +142,9 @@ public class JustjService extends Service {
         public IBinder getDownload() throws RemoteException {
             return mISpDownloader;
         }
+
+
     };
-
-
 
     private final ISpSysCtrl.Stub mISpSysCtrl = new ISpSysCtrl.Stub(){
         @Override
@@ -351,6 +365,39 @@ public class JustjService extends Service {
         public byte[] getCardNuber() throws RemoteException {
             return mMagcardReader.getCardNuber();
         }
+    };
+
+    private final IThermalPrinter.Stub mIThermalPrinter = new IThermalPrinter.Stub(){
+        @Override
+        public int open() throws RemoteException {
+            return mThermalPrinter.open();
+        }
+
+        @Override
+        public int close() throws RemoteException {
+            return mThermalPrinter.close();
+        }
+
+        @Override
+        public int print(byte[] writeByte) throws RemoteException {
+            return mThermalPrinter.print(writeByte);
+        }
+
+        @Override
+        public void cancel() throws RemoteException {
+            mThermalPrinter.cancel();
+        }
+
+        @Override
+        public boolean isFinished() throws RemoteException {
+            return mThermalPrinter.isFinished();
+        }
+
+        @Override
+        public int waitForPrintFinish(int timeoutMs) throws RemoteException {
+            return mThermalPrinter.waitForPrintFinish(timeoutMs);
+        }
+
     };
 
     private final IPedReader.Stub mIPedReader = new IPedReader.Stub(){

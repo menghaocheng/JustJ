@@ -14,7 +14,11 @@ interface AidlJustjService {
 
     IBinder getPsamReader();
 
+    IBinder getMagcardReader();
+
     IBinder getPiccReader();
+
+    IBinder getThermalPrinter();
 
     IBinder getPinPad(int devid);
 
