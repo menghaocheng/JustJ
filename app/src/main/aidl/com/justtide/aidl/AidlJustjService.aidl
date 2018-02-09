@@ -12,8 +12,14 @@ interface AidlJustjService {
 
     IBinder getIccReader();
 
+    IBinder getPsamReader();
+
     IBinder getPiccReader();
 
     IBinder getPinPad(int devid);
+
+    IBinder getDownload();
+
+
 
 }

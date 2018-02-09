@@ -5,14 +5,20 @@ import com.just.api.PosDevice;
 import com.just.api.UtilFun;
 import com.justtide.aidl.AidlJustjService;
 import com.justtide.aidl.IIccReader;
+import com.justtide.aidl.IMagcardReader;
 import com.justtide.aidl.IPedReader;
 import com.justtide.aidl.IPiccReader;
+import com.justtide.aidl.IPsamReader;
+import com.justtide.aidl.ISpDownloader;
 import com.justtide.aidl.ISpSysCtrl;
 //import com.justtide.aidl.AidlJustjService;
 
 
 import com.justtide.justtide.IccReader;
+import com.justtide.justtide.MagcardReader;
 import com.justtide.justtide.PiccReader;
+import com.justtide.justtide.PsamReader;
+import com.justtide.justtide.SpDownloader;
 import com.justtide.justtide.SpSysCtrl;
 import com.justtide.justtide.PedReader;
 
@@ -37,8 +43,11 @@ public class JustjService extends Service {
 
     SpSysCtrl mSpSysCtrl;
     IccReader mIccReader;
+    PsamReader mPsamReader;
     PiccReader mPiccReader;
+    MagcardReader mMagcardReader;
     PedReader mPedReader;
+    SpDownloader mSpDownloader;
 
     @Override
     public void onCreate() {
@@ -49,8 +58,11 @@ public class JustjService extends Service {
 
         mSpSysCtrl = SpSysCtrl.getInstance();
         mIccReader = IccReader.getInstance();
+        mPsamReader = PsamReader.getInstance();
         mPiccReader = PiccReader.getInstance();
+        mMagcardReader = MagcardReader.getInstance();
         mPedReader = PedReader.getInstance(null);
+        mSpDownloader = SpDownloader.getInstance();
 
     }
 
@@ -98,13 +110,23 @@ public class JustjService extends Service {
         }
 
         @Override
+        public IBinder getPsamReader() throws RemoteException {
+            return mIPsamReader;
+        }
+
+        @Override
         public IBinder getPiccReader() throws RemoteException {
-            return null;
+            return mIPiccReader;
         }
 
         @Override
         public IBinder getPinPad(int devid) throws RemoteException {
             return mIPedReader;
+        }
+
+        @Override
+        public IBinder getDownload() throws RemoteException {
+            return mISpDownloader;
         }
     };
 
@@ -186,100 +208,150 @@ public class JustjService extends Service {
             return mIccReader.checkStop();
         }
 
-        private final IPiccReader.Stub mIIccReader = new IPiccReader.Stub(){
-            @Override
-            public int open(byte slot) throws RemoteException {
-                return mPiccReader.open();
-            }
-
-            @Override
-            public int close() throws RemoteException {
-                return mPiccReader.close();
-            }
-
-            @Override
-            public int search(byte pollMode, byte cardType, int timeoutMs) throws RemoteException {
-                return mPiccReader.search(pollMode, cardType, timeoutMs);
-            }
-
-            @Override
-            public int checkCardType(int cardType) throws RemoteException {
-                return mPiccReader.checkCardType(cardType);
-            }
-
-            @Override
-            public void searchStop() throws RemoteException {
-                mPiccReader.searchStop();
-            }
-
-            @Override
-            public int remove() throws RemoteException {
-                return mPiccReader.remove();
-            }
-
-            @Override
-            public boolean checkIfRemoved() throws RemoteException {
-                return mPiccReader.checkIfRemoved();
-            }
-
-            @Override
-            public int m1Authentication(byte blockNumber, byte keyType, byte[] key) throws RemoteException {
-                return mPiccReader.m1Authentication(blockNumber, keyType, key);
-            }
-
-            @Override
-            public byte[] m1BlockDataRead(byte blockNumber) throws RemoteException {
-                return mPiccReader.m1BlockDataRead(blockNumber);
-            }
-
-            @Override
-            public int m1BlockDataWrite(byte blockNumber, byte[] inData) throws RemoteException {
-                return mPiccReader.m1BlockDataWrite(blockNumber, inData);
-            }
-
-            @Override
-            public int m1ValueDataSet(byte blockNumber, int value) throws RemoteException {
-                return mPiccReader.m1ValueDataSet(blockNumber, value);
-            }
-
-            @Override
-            public int m1ValueDataRead(byte blockNumber, int[] outValue) throws RemoteException {
-                return 0;
-            }
-
-            @Override
-            public int m1ValueDataAdd(byte blockNumber, int value) throws RemoteException {
-                return mPiccReader.m1ValueDataAdd(blockNumber, value);
-            }
-
-            @Override
-            public int m1ValueDataDel(byte blockNumber, int value) throws RemoteException {
-                return mPiccReader.m1ValueDataDel(blockNumber, value);
-            }
-
-            @Override
-            public int m1ValueDataSaveOpRet(byte blockNumber) throws RemoteException {
-                return mPiccReader.m1ValueDataSaveOpRet(blockNumber);
-            }
-
-            @Override
-            public int m1ValueDataUnloading(byte blockNumber) throws RemoteException {
-                return mPiccReader.m1ValueDataUnloading(blockNumber);
-            }
-
-            @Override
-            public byte[] getConfig() throws RemoteException {
-                return mPiccReader.getConfig();
-            }
-
-            @Override
-            public int setConfig(byte printConf, byte[] abCardValidRegValue) throws RemoteException {
-                return mPiccReader.setConfig(printConf, abCardValidRegValue);
-            }
-        };
     };
 
+    private final IPsamReader.Stub mIPsamReader = new IPsamReader.Stub(){
+        @Override
+        public int open(byte slot, boolean emvMode) throws RemoteException {
+            return 0;
+        }
 
+        @Override
+        public int close() throws RemoteException {
+            return mPsamReader.close();
+        }
+
+        @Override
+        public int checkStop() throws RemoteException {
+            return mPsamReader.checkStop();
+        }
+
+        @Override
+        public int disable() throws RemoteException {
+            return mPsamReader.disable();
+        }
+
+
+    };
+
+    private final IPiccReader.Stub mIPiccReader = new IPiccReader.Stub(){
+        @Override
+        public int open(byte slot) throws RemoteException {
+            return mPiccReader.open(slot);
+        }
+
+        @Override
+        public int close() throws RemoteException {
+            return mPiccReader.close();
+        }
+
+        @Override
+        public int search(byte pollMode, byte cardType, int timeoutMs) throws RemoteException {
+            return mPiccReader.search(pollMode, cardType, timeoutMs);
+        }
+
+        @Override
+        public int checkCardType(int cardType) throws RemoteException {
+            return mPiccReader.checkCardType(cardType);
+        }
+
+        @Override
+        public void searchStop() throws RemoteException {
+            mPiccReader.searchStop();
+        }
+
+        @Override
+        public int remove() throws RemoteException {
+            return mPiccReader.remove();
+        }
+
+        @Override
+        public boolean checkIfRemoved() throws RemoteException {
+            return mPiccReader.checkIfRemoved();
+        }
+
+        @Override
+        public int m1Authentication(byte blockNumber, byte keyType, byte[] key) throws RemoteException {
+            return mPiccReader.m1Authentication(blockNumber, keyType, key);
+        }
+
+        @Override
+        public byte[] m1BlockDataRead(byte blockNumber) throws RemoteException {
+            return mPiccReader.m1BlockDataRead(blockNumber);
+        }
+
+        @Override
+        public int m1BlockDataWrite(byte blockNumber, byte[] inData) throws RemoteException {
+            return mPiccReader.m1BlockDataWrite(blockNumber, inData);
+        }
+
+        @Override
+        public int m1ValueDataSet(byte blockNumber, int value) throws RemoteException {
+            return mPiccReader.m1ValueDataSet(blockNumber, value);
+        }
+
+        @Override
+        public int m1ValueDataRead(byte blockNumber, int[] outValue) throws RemoteException {
+            return 0;
+        }
+
+        @Override
+        public int m1ValueDataAdd(byte blockNumber, int value) throws RemoteException {
+            return mPiccReader.m1ValueDataAdd(blockNumber, value);
+        }
+
+        @Override
+        public int m1ValueDataDel(byte blockNumber, int value) throws RemoteException {
+            return mPiccReader.m1ValueDataDel(blockNumber, value);
+        }
+
+        @Override
+        public int m1ValueDataSaveOpRet(byte blockNumber) throws RemoteException {
+            return mPiccReader.m1ValueDataSaveOpRet(blockNumber);
+        }
+
+        @Override
+        public int m1ValueDataUnloading(byte blockNumber) throws RemoteException {
+            return mPiccReader.m1ValueDataUnloading(blockNumber);
+        }
+
+        @Override
+        public byte[] getConfig() throws RemoteException {
+            return mPiccReader.getConfig();
+        }
+
+        @Override
+        public int setConfig(byte printConf, byte[] abCardValidRegValue) throws RemoteException {
+            return mPiccReader.setConfig(printConf, abCardValidRegValue);
+        }
+    };
+
+    private final IMagcardReader.Stub mIMagcardReader = new IMagcardReader.Stub(){
+        @Override
+        public int open() throws RemoteException {
+            return mMagcardReader.open();
+        }
+
+        @Override
+        public int close() throws RemoteException {
+            return mMagcardReader.close();
+        }
+
+        @Override
+        public boolean detect() throws RemoteException {
+            return mMagcardReader.detect();
+        }
+
+        @Override
+        public int setCheckLrc(boolean value) throws RemoteException {
+            return mMagcardReader.setCheckLrc(value);
+        }
+
+        @Override
+        public byte[] getCardNuber() throws RemoteException {
+            return mMagcardReader.getCardNuber();
+        }
+    };
 
     private final IPedReader.Stub mIPedReader = new IPedReader.Stub(){
         @Override
@@ -466,6 +538,32 @@ public class JustjService extends Service {
 
     };
 
+    private final ISpDownloader.Stub mISpDownloader = new ISpDownloader.Stub(){
+        @Override
+        public int open() throws RemoteException {
+            return mSpDownloader.open();
+        }
 
+        @Override
+        public int close() throws RemoteException {
+            return mSpDownloader.close();
+        }
+
+        @Override
+        public int down(byte[] writeByte) throws RemoteException {
+            return mSpDownloader.down(writeByte);
+        }
+
+        @Override
+        public int waitForUpdateFinish(int timeoutMs) throws RemoteException {
+            return mSpDownloader.waitForUpdateFinish(timeoutMs);
+        }
+
+        @Override
+        public String getVersion() throws RemoteException {
+            return mSpDownloader.getVersion();
+        }
+
+    };
 
 }
