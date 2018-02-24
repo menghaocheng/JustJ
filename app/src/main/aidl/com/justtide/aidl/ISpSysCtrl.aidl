@@ -1,5 +1,7 @@
 package com.justtide.aidl;
 
+import com.justtide.aidl.Time;
+
 interface ISpSysCtrl {
 
      String getVersion();
@@ -8,16 +10,11 @@ interface ISpSysCtrl {
 
     int beep(int frequncy, int timeMs);
 
-    //int setTime(long timestamp);
-
-    //long getTime();
-
     int ledControl(int ledName, int ledMode);
 
     byte[] getSn();
 
     int setSn(in byte[] sn);
-
 
     int spLogOpen();
 
@@ -27,9 +24,9 @@ interface ISpSysCtrl {
 
     int exeCmd(String cmdStr);
 
+    int setTime(in Time time);
 
-    //int setTime(Time time);
+    Time getTime();
 
-    //Time getTime();
-
+    int getExpValue();
 }

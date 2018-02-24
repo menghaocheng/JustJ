@@ -1,16 +1,12 @@
 // IIccReader.aidl
 package com.justtide.aidl;
 
-// Declare any non-default types here with import statements
+import com.justtide.aidl.ContactCard;
+import com.justtide.aidl.CommandApdu;
+import com.justtide.aidl.ResponseApdu;
 
 interface IIccReader {
-    /**
-     * Demonstrates some basic types that you can use as parameters
-     * and return values in AIDL.
-     */
-    /*void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,
-            double aDouble, String aString);
-            */
+
     int open(byte slot, boolean emvMode);
 
 //    int open(byte slot);
@@ -25,7 +21,7 @@ interface IIccReader {
 
     int checkStop();
 
-    //ContactCard enable(byte slot, byte vccMode, boolean emvMode);
+    ContactCard enable(byte slot, byte vccMode, boolean emvMode);
 
     //ContactCard enable(byte slot, byte vccMode);
 
@@ -33,9 +29,11 @@ interface IIccReader {
 
     //ContactCard enable();
 
-    //int disable();
+    int disable();
 
-    //ResponseApdu transmit(ContactCard contactCard, CommandApdu command);
+    ResponseApdu transmit(in ContactCard contactCard, in CommandApdu command);
 
+    void setExpValue(int errCode);
 
+    int getExpValue();
 }

@@ -1,15 +1,14 @@
 // IPiccReader.aidl
 package com.justtide.aidl;
 
-// Declare any non-default types here with import statements
+import com.justtide.aidl.CommandApdu;
+import com.justtide.aidl.ResponseApdu;
+import com.justtide.aidl.PiccInterface;
+import com.justtide.aidl.ContactlessCard;
 
 interface IPiccReader {
-    /**
-     * Demonstrates some basic types that you can use as parameters
-     * and return values in AIDL.
-     */
-    /*void basicTypes(int anInt, long aLong, boolean aBoolean, float aFloat,
-            double aDouble, String aString);*/
+
+    int getExpValue();
 
      int open(byte slot);
 
@@ -25,13 +24,15 @@ interface IPiccReader {
 
      int search();*/
 
-    //int detect(PiccInterface piccInterface);
+     //int detect(in PiccInterface piccInterface);
+
+     ContactlessCard detect();
 
      int checkCardType(int cardType);
 
      void searchStop();
 
-     //ResponseApdu transmit(CommandApdu command, in byte[] exPara);
+     ResponseApdu transmit(in CommandApdu command, in byte[] exPara);
 
      int remove();
 
