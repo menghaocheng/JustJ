@@ -17,6 +17,7 @@ import com.justtide.aidl.ISpDownloader;
 import com.justtide.aidl.ISpSysCtrl;
 import com.justtide.aidl.IThermalPrinter;
 import com.justtide.aidl.MagneticCard;
+import com.justtide.aidl.PedConfig;
 import com.justtide.aidl.PiccInterface;
 import com.justtide.aidl.ResponseApdu;
 import com.justtide.aidl.RsaPinKey;
@@ -44,7 +45,6 @@ import android.os.RemoteException;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import static com.justtide.justtide.MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA;
 
 public class JustjService extends Service {
 
@@ -52,7 +52,7 @@ public class JustjService extends Service {
     private static boolean dbg = false;
 
 
-    PosDevice mPosDevice;
+    PosDevice mPosDevice = new PosDevice(-1);;
 
     SpSysCtrl mSpSysCtrl;
     IccReader mIccReader;
@@ -64,12 +64,22 @@ public class JustjService extends Service {
     SpDownloader mSpDownloader;
     GuomiReader mGuomiReader;
 
+    private final ISpSysCtrl.Stub mImplSpSysCtrl = new ImplSpSysCtrl(mPosDevice);
+    private final IIccReader.Stub mImplIccReader = new ImplIccReader(mPosDevice);
+    private final IPsamReader.Stub mImplPsamReader = new ImplPsamReader(mPosDevice);
+    private final IPiccReader.Stub mImplPiccReader = new ImplPiccReader(mPosDevice);
+    private final IMagcardReader.Stub mImplMagcardReader = new ImplMagcardReader(mPosDevice);
+    private final IThermalPrinter.Stub mImplThermalPrinter = new ImplThermalPrinter(mPosDevice);
+    private final IPedReader.Stub mImplPedReader = new ImplPedReader(mPosDevice);
+    private final ISpDownloader.Stub mImplSpDownloader = new ImplSpDownloader(mPosDevice);
+    private final IGuomiReader.Stub mImplGuomiReader = new ImplGuomiReader(mPosDevice);
+
+
     @Override
     public void onCreate() {
         Log.d(TAG, "onCreate: ");
         super.onCreate();
 
-        mPosDevice = new PosDevice(-1);
 
         mSpSysCtrl = SpSysCtrl.getInstance();
         mIccReader = IccReader.getInstance();
@@ -80,6 +90,8 @@ public class JustjService extends Service {
         mPedReader = PedReader.getInstance(null);
         mSpDownloader = SpDownloader.getInstance();
         mGuomiReader = GuomiReader.getInstance();
+
+        //mImplSpSysCtrl.SetPosDevice(mPosDevice);
 
     }
 
@@ -113,59 +125,68 @@ public class JustjService extends Service {
         @Override
         public String hello(String inStr) throws RemoteException {
             Log.d(TAG, "test: inStr =" + inStr);
-            return mIPedReader.hello(inStr);
+            return mImplPedReader.hello(inStr);
         }
 
         @Override
         public IBinder getSpSysCtrl() throws RemoteException {
-            return mISpSysCtrl;
+            //return mISpSysCtrl;
+            return mImplSpSysCtrl;
         }
 
         @Override
         public IBinder getIccReader() throws RemoteException {
-            return mIIccReader;
+            //return mIIccReader;
+            return mImplIccReader;
         }
 
         @Override
         public IBinder getPsamReader() throws RemoteException {
-            return mIPsamReader;
+            //return mIPsamReader;
+            return mImplPsamReader;
         }
 
         @Override
         public IBinder getMagcardReader() throws RemoteException {
-            return mIMagcardReader;
+            //return mIMagcardReader;
+            return mImplMagcardReader;
         }
 
         @Override
         public IBinder getPiccReader() throws RemoteException {
-            return mIPiccReader;
+            //return mIPiccReader;
+            return mImplPiccReader;
         }
 
         @Override
         public IBinder getThermalPrinter() throws RemoteException {
-            return mIThermalPrinter;
+            //return mIThermalPrinter;
+            return mImplThermalPrinter;
         }
 
         @Override
         public IBinder getPinPad(int devid) throws RemoteException {
-            return mIPedReader;
+            //return mIPedReader;
+            return mImplPedReader;
         }
 
         @Override
         public IBinder getDownload() throws RemoteException {
-            return mISpDownloader;
+            //return mISpDownloader;
+            return mImplSpDownloader;
         }
 
         @Override
         public IBinder getGuomiReader() throws RemoteException {
-            return mIGuomiReader;
+            //return mIGuomiReader;
+            return mImplGuomiReader;
         }
     };
 
     private final ISpSysCtrl.Stub mISpSysCtrl = new ISpSysCtrl.Stub(){
         @Override
         public int getExpValue() throws RemoteException {
-            return mGuomiReader.getExpValue();
+            return mSpSysCtrl.getExpValue();
         }
 
         @Override
@@ -262,12 +283,12 @@ public class JustjService extends Service {
     private final IIccReader.Stub mIIccReader = new IIccReader.Stub(){
         @Override
         public int getExpValue() throws RemoteException {
-            return mGuomiReader.getExpValue();
+            return mIccReader.getExpValue();
         }
 
         @Override
         public void setExpValue(int errCode) throws RemoteException {
-            mGuomiReader.setExpValue(errCode);
+            mIccReader.setExpValue(errCode);
         }
 
         @Override
@@ -410,7 +431,7 @@ public class JustjService extends Service {
     private final IPiccReader.Stub mIPiccReader = new IPiccReader.Stub(){
         @Override
         public int getExpValue() throws RemoteException {
-            return mGuomiReader.getExpValue();
+            return mPiccReader.getExpValue();
         }
 
         @Override
@@ -429,7 +450,7 @@ public class JustjService extends Service {
         }
 
         @Override
-        public com.justtide.aidl.ContactlessCard detect() throws RemoteException {
+        public ContactlessCard detect() throws RemoteException {
             int reval = 0;
 
             if (mPiccReader.mNfcSwipeFlag == PiccReader.NFCCARD_SWIPE_MAG_NUMA){
@@ -621,8 +642,8 @@ public class JustjService extends Service {
             trackLength = mcrTrackAll[offset] & 0xff;
             offset ++;
             if (trackLength > MagcardReader.TRACK_DATA_MAXLEN){
-                Log.e(TAG, "read:" + mMagcardReader.expToString(MAGCARD_ERR_INVALID_TRACK_DATA));
-                mMagcardReader.setExpValue(MAGCARD_ERR_INVALID_TRACK_DATA);
+                Log.e(TAG, "read:" + mMagcardReader.expToString(MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA));
+                mMagcardReader.setExpValue(MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA);
                 return null;
             }
             String chanelStr1 = UtilFun.byteToString(mcrTrackAll, offset, trackLength);
@@ -637,8 +658,8 @@ public class JustjService extends Service {
             trackLength = mcrTrackAll[offset] & 0xff;
             offset ++;
             if (trackLength > MagcardReader.TRACK_DATA_MAXLEN){
-                Log.e(TAG, "read:" + mMagcardReader.expToString(MAGCARD_ERR_INVALID_TRACK_DATA));
-                mMagcardReader.setExpValue(MAGCARD_ERR_INVALID_TRACK_DATA);
+                Log.e(TAG, "read:" + mMagcardReader.expToString(MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA));
+                mMagcardReader.setExpValue(MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA);
                 return null;
             }
             String chanelStr2 = UtilFun.byteToString(mcrTrackAll, offset, trackLength);
@@ -653,8 +674,8 @@ public class JustjService extends Service {
             trackLength = mcrTrackAll[offset] & 0xff;
             offset ++;
             if (trackLength > MagcardReader.TRACK_DATA_MAXLEN){
-                Log.e(TAG, "read:" + mMagcardReader.expToString(MAGCARD_ERR_INVALID_TRACK_DATA));
-                mMagcardReader.setExpValue(MAGCARD_ERR_INVALID_TRACK_DATA);
+                Log.e(TAG, "read:" + mMagcardReader.expToString(MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA));
+                mMagcardReader.setExpValue(MagcardReader.MAGCARD_ERR_INVALID_TRACK_DATA);
                 return null;
             }
             String chanelStr3 = UtilFun.byteToString(mcrTrackAll, offset, trackLength);
@@ -734,6 +755,20 @@ public class JustjService extends Service {
         public String hello(String inStr) throws RemoteException {
             Log.d(TAG, "test: inStr =" + inStr);
             return inStr;
+        }
+
+        @Override
+        public PedConfig getConfig() throws RemoteException {
+            byte[] thisBytes = new byte[512];
+            int reval = mPosDevice.pedGetConfig(thisBytes);
+            if (reval < 0){
+                setExpValue(reval);
+                Log.e(TAG, "pedGetConfig failed:" + PedReader.expToString(reval));
+                return null;
+            }
+            int configLen = UtilFun.bytesToInt32(thisBytes, 0);
+
+            return new PedConfig(thisBytes, 8, configLen);
         }
 
         @Override

@@ -606,10 +606,10 @@ public final class CommandApdu implements Parcelable{
 		if (this == obj) {
 		    return true;
 		}
-		if (obj instanceof com.justtide.justtide.CommandApdu == false) {
+		if (obj instanceof CommandApdu == false) {
 		    return false;
 		}
-		com.justtide.aidl.CommandApdu other = (com.justtide.aidl.CommandApdu)obj;
+		CommandApdu other = (CommandApdu)obj;
 		return Arrays.equals(this.apdu, other.apdu);
     }
     

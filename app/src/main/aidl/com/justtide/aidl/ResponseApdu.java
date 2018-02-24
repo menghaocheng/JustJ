@@ -3,8 +3,6 @@ package com.justtide.aidl;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.just.api.UtilFun;
-
 import java.util.Arrays;
 
 public final class ResponseApdu implements Parcelable{
@@ -167,10 +165,10 @@ public final class ResponseApdu implements Parcelable{
 		if (this == obj) {
 		    return true;
 		}
-		if (obj instanceof com.justtide.justtide.ResponseApdu == false) {
+		if (obj instanceof ResponseApdu == false) {
 		    return false;
 		}
-		com.justtide.aidl.ResponseApdu other = (com.justtide.aidl.ResponseApdu)obj;
+		ResponseApdu other = (ResponseApdu)obj;
 		return Arrays.equals(this.apdu, other.apdu);
 		
     }

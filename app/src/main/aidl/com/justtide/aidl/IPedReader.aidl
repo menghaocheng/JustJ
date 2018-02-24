@@ -4,6 +4,7 @@ package com.justtide.aidl;
 import com.justtide.aidl.HsmObj;
 import com.justtide.aidl.Task;
 import com.justtide.aidl.RsaPinKey;
+import com.justtide.aidl.PedConfig;
 
 // Declare any non-default types here with import statements
 
@@ -14,6 +15,8 @@ interface IPedReader {
     void setExpValue(int errCode);
 
     int getExpValue();
+
+    PedConfig getConfig();
 
     byte[] getRandom(int randomLen);
 

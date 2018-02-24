@@ -4,8 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.just.api.UtilFun;
-
 /**
  * Created by mc.meng on 2017/10/10.
  */

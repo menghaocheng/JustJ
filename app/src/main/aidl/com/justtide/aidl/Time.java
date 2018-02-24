@@ -4,8 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.Log;
 
-import com.just.api.UtilFun;
-
 public class Time implements Parcelable{
 	private static final String TAG = "SpSysCtrl";
 	
