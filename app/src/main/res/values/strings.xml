@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">JustJ</string>
+    <string name="permision_hello">Permmision Hello</string>
 </resources>

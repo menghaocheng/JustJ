@@ -1,5 +1,6 @@
 package com.justtide.justj;
 
+import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -13,7 +14,7 @@ import com.justtide.aidl.Time;
  * Created by mc.meng on 2018/2/24.
  */
 
-public class ImplSpSysCtrl extends ISpSysCtrl.Stub {
+public class ImplSpSysCtrl extends ISpSysCtrl.Stub{
     private static final String TAG = "ImplSpSysCtrl";
     private static boolean dbg = true;
 
@@ -105,7 +106,7 @@ public class ImplSpSysCtrl extends ISpSysCtrl.Stub {
     @Override
     public String getVersion(){
         if (dbg) Log.d(TAG, "getVersion ...");
-
+        Context mContext;
         byte[] thisByte = new byte[128];
         int reval = mPosDevice.sysHandShake(thisByte);
         if (reval < 0){
